@@ -20,16 +20,11 @@ class App extends React.Component {
       height: this.state.height === 1000 ? 300 : 1000
     });
   };
-  rowSelected = () => {
+  rowSelected = (rowData, rowIndex) => {
     this.setState({
-      abc: Math.random()
+      selectedRowIndex: rowIndex,
+      selectedRow: rowData
     });
-
-    setInterval(() => {
-      this.setState({
-        abc: Math.random()
-      });
-    }, 100);
   };
   render() {
     return (
@@ -38,6 +33,8 @@ class App extends React.Component {
         <div className={this.state.fullWidth ? "full-width" : "half-width"}>
           <TableComponent
             data={data}
+            width={1000}
+            height={500}
             setSelectedRow={this.rowSelected}
           ></TableComponent>
         </div>
