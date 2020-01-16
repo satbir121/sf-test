@@ -5,7 +5,11 @@ import {
   ColumnsDirective,
   GridComponent,
   Page,
-  Inject
+  Inject,
+  Resize,
+  Reorder,
+  CommandColumn,
+  ColumnMenu
 } from "@syncfusion/ej2-react-grids";
 const settings = { type: "Multiple" };
 
@@ -26,33 +30,49 @@ export default class TableComponent extends React.Component {
     }
   };
   render() {
-    console.log("RENDER");
-    try {
-      if (this.grid) {
-        console.log(this.grid.getSelectedRowIndexes());
+    const commands = [
+      {
+        type: "Edit",
+        buttonOption: { cssClass: "e-flat", iconCss: "e-edit e-icons" }
+      },
+      {
+        type: "Delete",
+        buttonOption: { cssClass: "e-flat", iconCss: "e-delete e-icons" }
+      },
+      {
+        type: "Save",
+        buttonOption: { cssClass: "e-flat", iconCss: "e-update e-icons" }
+      },
+      {
+        type: "Cancel",
+        buttonOption: { cssClass: "e-flat", iconCss: "e-cancel-icon e-icons" }
       }
-    } catch (ex) {
-      console.log(ex);
-    }
+    ];
     return (
       <GridComponent
-        ref={g => (this.grid = g)}
-        dataSource={this.props.data}
-        allowPaging={true}
-        rowSelected={this.rowSelected}
         selectionSettings={settings}
-        selectedRowIndex={this.props.selectedRowIndex}
-        width={this.props.width - 16}
-        height={this.props.height - 107}
+        dataSource={this.props.data}
+        rowSelected={this.rowSelected}
+        ref={g => (this.grid = g)}
+        width={"100%"}
+        height={"100%"}
         dataBound={this.dataBound}
+        allowPaging={true}
+        allowReordering={true}
+        allowResizing={true}
+        showColumnMenu={true}
+        commandClick={args => {
+          console.log(args);
+        }}
       >
-        <Inject services={[Page]} />
+        <Inject services={[Page, Resize, Reorder, CommandColumn, ColumnMenu]} />
         <ColumnsDirective>
           <ColumnDirective field="OrderID" width="100" textAlign="Right" />
           <ColumnDirective field="CustomerID" width="100" />
           <ColumnDirective field="EmployeeID" width="100" />
           <ColumnDirective field="Freight" width="100" format="C2" />
           <ColumnDirective field="ShipCountry" width="100" />
+          <ColumnDirective headerText="Commands" commands={commands} />
         </ColumnsDirective>
       </GridComponent>
     );
