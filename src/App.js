@@ -1,6 +1,49 @@
-import React from "react";
+import React, { useState } from "react";
 import TableComponent from "./TableComponent";
 import { data } from "./datasource";
+
+import { DndProvider } from "react-dnd";
+import Backend from "react-dnd-html5-backend";
+
+import { useDrag } from "react-dnd";
+export const ItemTypes = {
+  CARD: "CARD"
+};
+
+export function log(text) {
+  const logDiv = document.getElementById("log");
+  let div = document.createElement("div");
+  div.innerHTML = text;
+  logDiv.appendChild(div);
+  logDiv.scrollTop = logDiv.scrollHeight;
+}
+
+export function Card({ data, columns, rowSelected }) {
+  const [disableDrag, setDisableDrag] = useState(false);
+  const [{ opacity }, dragRef] = useDrag({
+    item: { type: ItemTypes.CARD },
+    collect: monitor => ({
+      opacity: monitor.isDragging() ? 0.5 : 1
+    }),
+    canDrag: () => {
+      console.log("canDrag");
+      log("canDrag");
+      return !disableDrag;
+    }
+  });
+
+  return (
+    <div ref={dragRef} style={{ opacity }}>
+      <TableComponent
+        data={data}
+        columns={columns}
+        height={500}
+        setSelectedRow={rowSelected}
+        setDisableDrag={setDisableDrag}
+      ></TableComponent>
+    </div>
+  );
+}
 
 function constructColumns(data) {
   const cols = [];
@@ -37,28 +80,17 @@ const commands = [
   }
 ];
 
-let counter = 0;
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       fullWidth: true,
       height: 1000,
-      data: [],
-      commands: [],
-      columns: []
+      data: data,
+      commands: commands,
+      columns: constructColumns(data)
     };
   }
-  toggleWidth = () => {
-    this.setState({
-      fullWidth: !this.state.fullWidth
-    });
-  };
-  toggleHeight = () => {
-    this.setState({
-      height: this.state.height === 1000 ? 300 : 1000
-    });
-  };
   rowSelected = (rowData, rowIndex) => {
     this.setState({
       selectedRowIndex: rowIndex,
@@ -66,29 +98,18 @@ class App extends React.Component {
     });
   };
   render() {
-    setTimeout(() => {
-      if (counter < 1) {
-        const columns = constructColumns(data);
-        this.setState({
-          commands: commands,
-          data: data,
-          columns: columns
-        });
-        counter++;
-      }
-    }, 1000);
-
     return (
       <div className="App">
-        <button onClick={this.toggleWidth}>Resize</button>
-        <div className={this.state.fullWidth ? "full-width" : "half-width"}>
-          <TableComponent
+        <DndProvider backend={Backend}>
+          <Card
+            text={"adasds"}
             data={this.state.data}
-            width={this.state.fullWidth}
             columns={this.state.columns}
-            height={500}
-            setSelectedRow={this.rowSelected}
-          ></TableComponent>
+            rowSelected={this.rowSelected}
+          ></Card>
+        </DndProvider>
+        <div id="log">
+          <h1>Logs</h1>
         </div>
       </div>
     );

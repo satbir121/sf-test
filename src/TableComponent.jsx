@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import "./App.css";
 
 import {
@@ -12,11 +12,10 @@ import {
   CommandColumn,
   ColumnMenu
 } from "@syncfusion/ej2-react-grids";
+import { log } from "./App";
 const settings = { type: "Multiple" };
 
 export default function TableComponent(props) {
-  // let [columns, setColumns] = useState([]);
-  // let [dataSource, setData] = useState([]);
   const grid = useRef();
 
   const rowSelected = () => {
@@ -35,9 +34,6 @@ export default function TableComponent(props) {
     }
   };
 
-  function gridTemplate(props) {
-    return <div>Commands</div>;
-  }
   return (
     <GridComponent
       selectionSettings={settings}
@@ -51,6 +47,15 @@ export default function TableComponent(props) {
       allowReordering={true}
       allowResizing={true}
       showColumnMenu={true}
+      columnDragStart={() => {
+        console.log("columnDragStart");
+        log("columnDragStart");
+      }}
+      columnDrop={() => {
+        console.log("columnDrop");
+        log("columnDrop");
+        log("========");
+      }}
       commandClick={args => {
         console.log(args);
       }}
@@ -60,7 +65,6 @@ export default function TableComponent(props) {
         {props.columns.map(col => (
           <ColumnDirective field={col.field} />
         ))}
-        {/* <ColumnDirective headerText="Commands" template={gridTemplate} /> */}
         <ColumnDirective headerText="Commands" commands={props.commands} />
       </ColumnsDirective>
     </GridComponent>
