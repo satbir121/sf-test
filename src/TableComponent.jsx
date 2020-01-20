@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import "./App.css";
+
 import {
   ColumnDirective,
   ColumnsDirective,
@@ -13,68 +14,55 @@ import {
 } from "@syncfusion/ej2-react-grids";
 const settings = { type: "Multiple" };
 
-export default class TableComponent extends React.Component {
-  rowSelected = () => {
-    if (this.grid) this.props.setSelectedRow();
+export default function TableComponent(props) {
+  // let [columns, setColumns] = useState([]);
+  // let [dataSource, setData] = useState([]);
+  const grid = useRef();
 
-    const selectedrowindex = this.grid.getSelectedRowIndexes();
+  const rowSelected = () => {
+    if (grid.current) props.setSelectedRow();
+
+    const selectedrowindex = grid.current.getSelectedRowIndexes();
     /** Get the selected records. */
-    const selectedrecords = this.grid.getSelectedRecords();
+    const selectedrecords = grid.current.getSelectedRecords();
     if (selectedrecords.length !== 0) {
-      this.props.setSelectedRow(selectedrecords[0], selectedrowindex[0]);
+      props.setSelectedRow(selectedrecords[0], selectedrowindex[0]);
     }
   };
-  dataBound = () => {
-    if (this.grid) {
-      this.grid.autoFitColumns();
+  const dataBound = () => {
+    if (grid.current) {
+      grid.current.autoFitColumns();
     }
   };
-  render() {
-    const commands = [
-      {
-        type: "Edit",
-        buttonOption: { cssClass: "e-flat", iconCss: "e-edit e-icons" }
-      },
-      {
-        type: "Delete",
-        buttonOption: { cssClass: "e-flat", iconCss: "e-delete e-icons" }
-      },
-      {
-        type: "Save",
-        buttonOption: { cssClass: "e-flat", iconCss: "e-update e-icons" }
-      },
-      {
-        type: "Cancel",
-        buttonOption: { cssClass: "e-flat", iconCss: "e-cancel-icon e-icons" }
-      }
-    ];
-    return (
-      <GridComponent
-        selectionSettings={settings}
-        dataSource={this.props.data}
-        rowSelected={this.rowSelected}
-        ref={g => (this.grid = g)}
-        width={"100%"}
-        height={"100%"}
-        dataBound={this.dataBound}
-        allowPaging={true}
-        allowReordering={true}
-        allowResizing={true}
-        showColumnMenu={true}
-        commandClick={args => {
-          console.log(args);
-        }}
-      >
-        <Inject services={[Page, Resize, Reorder, CommandColumn, ColumnMenu]} />
-        <ColumnsDirective>
-          <ColumnDirective field="OrderID" width="100" textAlign="Right" />
-          <ColumnDirective field="CustomerID" width="100" />
-          <ColumnDirective field="EmployeeID" width="100" />
-          <ColumnDirective field="Freight" width="100" format="C2" />
-          <ColumnDirective field="ShipCountry" width="100" />
-          <ColumnDirective headerText="Commands" commands={commands} />
-        </ColumnsDirective>
-      </GridComponent>
-    );
+
+  function gridTemplate(props) {
+    return <div>Commands</div>;
   }
+  return (
+    <GridComponent
+      selectionSettings={settings}
+      dataSource={props.data}
+      rowSelected={rowSelected}
+      ref={grid}
+      width={"100%"}
+      height={"100%"}
+      dataBound={dataBound}
+      allowPaging={true}
+      allowReordering={true}
+      allowResizing={true}
+      showColumnMenu={true}
+      commandClick={args => {
+        console.log(args);
+      }}
+    >
+      <Inject services={[Page, Resize, Reorder, CommandColumn, ColumnMenu]} />
+      <ColumnsDirective>
+        {props.columns.map(col => (
+          <ColumnDirective field={col.field} />
+        ))}
+        {/* <ColumnDirective headerText="Commands" template={gridTemplate} /> */}
+        <ColumnDirective headerText="Commands" commands={props.commands} />
+      </ColumnsDirective>
+    </GridComponent>
+  );
 }
